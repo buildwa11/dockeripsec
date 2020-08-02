@@ -1,14 +1,35 @@
-version: '3'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipsec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipsec
+  template:
+    metadata:
+      labels:
+        app: ipsec
+    spec:
+      containers:
+      - image: xinb/ipsec:tagname
+        name: ipsec
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipsec
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+spec:
+  type: ClusterIP  
+  ports:
 
-services:
-  vpn:
-    image: hwdsl2/ipsec-vpn-server
-    restart: always
-    env_file:
-      - ./vpn.env
-    ports:
-      - "500:500/udp"
-      - "4500:4500/udp"
-    privileged: true
-    hostname: ipsec-vpn-server
-    container_name: ipsec-vpn-server
+  - name: "http-port-tcp"
+    port: 500
+  - name: "http-port-tcp2"
+    port: 4500
+    
+  selector:
+    app: ipsec
